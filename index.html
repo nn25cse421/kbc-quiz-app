@@ -2,40 +2,132 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KBC Quiz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Kaun Banega Champion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="start-screen" class="screen">
-    <h1>KBC Quiz</h1>
-    <p>Choose your difficulty to begin</p>
-    <div class="difficulty-buttons">
-      <button onclick="startQuiz('easy')">Easy</button>
-      <button onclick="startQuiz('medium')">Medium</button>
-      <button onclick="startQuiz('hard')">Hard</button>
+<div class="stage-glow" aria-hidden="true"></div>
+
+<!-- INTRO -->
+<div id="intro-screen" class="screen intro">
+  <div class="beam beam-a" aria-hidden="true"></div>
+  <div class="beam beam-b" aria-hidden="true"></div>
+  <div class="intro-content">
+    <p class="eyebrow">The ultimate hot seat</p>
+    <h1 class="logo-title">KAUN BANEGA<span>CHAMPION</span></h1>
+    <p class="tagline">Answer. Lock in. Win it all — or walk away with what you've earned.</p>
+    <button id="tap-start-btn" class="btn-primary pulse">Take the Hot Seat</button>
+  </div>
+</div>
+
+<!-- DIFFICULTY SELECT -->
+<div id="start-screen" class="screen hidden">
+  <p class="eyebrow">Choose your battlefield</p>
+  <h2 class="section-title">Select Difficulty</h2>
+  <div class="difficulty-grid">
+    <button class="diff-card diff-easy" data-diff="easy">
+      <span class="diff-name">Easy</span>
+      <span class="diff-top">Top Prize · <b>₹10,000</b></span>
+    </button>
+    <button class="diff-card diff-medium" data-diff="medium">
+      <span class="diff-name">Medium</span>
+      <span class="diff-top">Top Prize · <b>₹3,20,000</b></span>
+    </button>
+    <button class="diff-card diff-hard" data-diff="hard">
+      <span class="diff-name">Hard</span>
+      <span class="diff-top">Top Prize · <b>₹1,00,00,000</b></span>
+    </button>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="quiz-screen" class="screen hidden">
+
+  <div class="quiz-topbar">
+    <div class="prize-readout">
+      <span class="prize-label">You could win</span>
+      <span id="prize-amount" class="prize-amount">₹0</span>
+    </div>
+    <div class="timer-wrap">
+      <svg class="timer-ring" viewBox="0 0 100 100">
+        <circle class="timer-track" cx="50" cy="50" r="45"></circle>
+        <circle id="timer-fill" class="timer-fill" cx="50" cy="50" r="45"></circle>
+      </svg>
+      <span id="timer-text" class="timer-text">30</span>
     </div>
   </div>
 
-  <div id="quiz-screen" class="screen hidden">
-    <div class="progress">Question <span id="q-number">1</span> of <span id="q-total">5</span></div>
-    <h2 id="question-text">Question goes here</h2>
-    <div id="options" class="options"></div>
-  </div>
+  <div class="quiz-main">
 
-  <div id="result-screen" class="screen hidden">
-    <h1>Quiz Complete!</h1>
-    <p id="score-text">You scored 0 / 0</p>
-    <button onclick="restartQuiz()">Play Again</button>
-  </div>
+    <aside id="ladder" class="ladder"></aside>
 
-  <div id="error-screen" class="screen hidden">
-    <h2>Couldn't load questions</h2>
-    <p>Please check your internet connection and try again.</p>
-    <button onclick="location.reload()">Retry</button>
-  </div>
+    <div class="podium">
+      <div class="podium-beam" aria-hidden="true"></div>
 
-  <script src="quiz.js"></script>
+      <div class="lifelines">
+        <button id="ll-5050" class="lifeline-btn" title="50-50">
+          <span class="ll-icon">50:50</span>
+        </button>
+        <button id="ll-poll" class="lifeline-btn" title="Audience Poll">
+          <span class="ll-icon">📊</span>
+        </button>
+        <button id="ll-flip" class="lifeline-btn" title="Flip the Question">
+          <span class="ll-icon">🔄</span>
+        </button>
+      </div>
+
+      <div class="question-card">
+        <div class="q-meta">Question <span id="q-number">1</span> of <span id="q-total">5</span></div>
+        <h2 id="question-text" class="q-text">Loading question…</h2>
+      </div>
+
+      <div id="options" class="options"></div>
+
+      <div id="poll-result" class="poll-result hidden"></div>
+
+      <button id="quit-bank-btn" class="btn-ghost">Quit &amp; Bank ₹<span id="quit-amount">0</span></button>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOCK-IN MODAL -->
+<div id="lockin-modal" class="modal hidden">
+  <div class="modal-card">
+    <p class="lockin-question">Is that your final answer?</p>
+    <p id="lockin-choice" class="lockin-choice">A. Option text</p>
+    <div class="modal-actions">
+      <button id="lockin-confirm" class="btn-primary">Lock it in — Confirm</button>
+      <button id="lockin-cancel" class="btn-ghost">Change my answer</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen" class="screen hidden">
+  <div class="result-glow" aria-hidden="true"></div>
+  <p id="result-eyebrow" class="eyebrow">Game over</p>
+  <h1 id="result-heading" class="logo-title small">YOU WON</h1>
+  <p id="result-amount" class="result-amount">₹0</p>
+  <p id="result-sub" class="result-sub"></p>
+  <button id="play-again-btn" class="btn-primary">Play Again</button>
+</div>
+
+<!-- ERROR SCREEN -->
+<div id="error-screen" class="screen hidden">
+  <h2 class="section-title">Signal Lost</h2>
+  <p class="tagline">Couldn't load the questions. Check your internet connection and try again.</p>
+  <button id="retry-btn" class="btn-primary">Retry</button>
+</div>
+
+<div id="confetti-layer" aria-hidden="true"></div>
+<div id="wrong-flash" class="wrong-flash" aria-hidden="true"></div>
+
+<script src="quiz.js"></script>
 </body>
 </html>
