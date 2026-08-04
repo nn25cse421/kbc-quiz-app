@@ -112,6 +112,39 @@ function tone(freq, duration, type = "sine", startGain = 0.15, delay = 0) {
   osc.stop(t0 + duration + 0.02);
 }
 
+// low, punchy "timpani" style hit using a fast pitch drop
+function thump(delay = 0, startFreq = 160, gain = 0.3) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = "sine";
+  osc.connect(g).connect(audioCtx.destination);
+  const t0 = audioCtx.currentTime + delay;
+  osc.frequency.setValueAtTime(startFreq, t0);
+  osc.frequency.exponentialRampToValueAtTime(startFreq * 0.4, t0 + 0.25);
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.35);
+  osc.start(t0);
+  osc.stop(t0 + 0.4);
+}
+
+// rising sweep — builds tension into the reveal
+function sweep(delay = 0, duration = 0.9) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = "sawtooth";
+  osc.connect(g).connect(audioCtx.destination);
+  const t0 = audioCtx.currentTime + delay;
+  osc.frequency.setValueAtTime(140, t0);
+  osc.frequency.exponentialRampToValueAtTime(900, t0 + duration);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.09, t0 + duration * 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+  osc.start(t0);
+  osc.stop(t0 + duration + 0.05);
+}
+
 const sound = {
   tick: () => tone(880, 0.06, "square", 0.05),
   select: () => tone(520, 0.08, "triangle", 0.08),
@@ -124,13 +157,23 @@ const sound = {
     tone(80, 0.7, "square", 0.14, 0.3);
   },
   levelUp: () => { tone(660, 0.12, "sine", 0.1); tone(880, 0.18, "sine", 0.12, 0.1); },
-  win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.35, "sine", 0.12, i * 0.14)); }
+  win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.35, "sine", 0.12, i * 0.14)); },
+  intro: () => {
+    // big cinematic game-show sting: timpani hits -> rising sweep -> bright resolving chord
+    thump(0, 150, 0.28);
+    thump(0.28, 150, 0.24);
+    thump(0.56, 130, 0.3);
+    sweep(0.85, 0.85);
+    // bright resolving chord as the logo lands
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, 0.9, "sine", 0.11, 1.7 + i * 0.03));
+    [523.25 / 2, 659.25 / 2].forEach((f, i) => tone(f, 1.1, "triangle", 0.08, 1.7 + i * 0.03));
+  }
 };
 
 // ===== INTRO =====
 el.tapStart.addEventListener("click", () => {
   ensureAudio();
-  sound.select();
+  sound.intro();
   showScreen("start");
 });
 
