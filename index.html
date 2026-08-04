@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KBC Quiz</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="start-screen" class="screen">
+    <h1>KBC Quiz</h1>
+    <p>Choose your difficulty to begin</p>
+    <div class="difficulty-buttons">
+      <button onclick="startQuiz('easy')">Easy</button>
+      <button onclick="startQuiz('medium')">Medium</button>
+      <button onclick="startQuiz('hard')">Hard</button>
+    </div>
+  </div>
+
+  <div id="quiz-screen" class="screen hidden">
+    <div class="progress">Question <span id="q-number">1</span> of <span id="q-total">5</span></div>
+    <h2 id="question-text">Question goes here</h2>
+    <div id="options" class="options"></div>
+  </div>
+
+  <div id="result-screen" class="screen hidden">
+    <h1>Quiz Complete!</h1>
+    <p id="score-text">You scored 0 / 0</p>
+    <button onclick="restartQuiz()">Play Again</button>
+  </div>
+
+  <div id="error-screen" class="screen hidden">
+    <h2>Couldn't load questions</h2>
+    <p>Please check your internet connection and try again.</p>
+    <button onclick="location.reload()">Retry</button>
+  </div>
+
+  <script src="quiz.js"></script>
+</body>
+</html>
