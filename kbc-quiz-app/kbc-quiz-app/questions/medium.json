@@ -1,0 +1,32 @@
+[
+  {
+    "id": "m001",
+    "question": "Who wrote the Indian national anthem 'Jana Gana Mana'?",
+    "options": ["Rabindranath Tagore", "Bankim Chandra Chattopadhyay", "Sarojini Naidu", "Subhas Chandra Bose"],
+    "answer": "Rabindranath Tagore"
+  },
+  {
+    "id": "m002",
+    "question": "Which planet is known as the Red Planet?",
+    "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+    "answer": "Mars"
+  },
+  {
+    "id": "m003",
+    "question": "In which year did India gain independence?",
+    "options": ["1945", "1946", "1947", "1948"],
+    "answer": "1947"
+  },
+  {
+    "id": "m004",
+    "question": "What is the largest organ in the human body?",
+    "options": ["Heart", "Liver", "Skin", "Brain"],
+    "answer": "Skin"
+  },
+  {
+    "id": "m005",
+    "question": "Which is the longest river in the world?",
+    "options": ["Amazon", "Nile", "Ganges", "Yangtze"],
+    "answer": "Nile"
+  }
+]

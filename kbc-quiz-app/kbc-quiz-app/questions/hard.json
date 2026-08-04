@@ -1,0 +1,32 @@
+[
+  {
+    "id": "h001",
+    "question": "Who was the first woman Prime Minister of India?",
+    "options": ["Sonia Gandhi", "Indira Gandhi", "Pratibha Patil", "Sushma Swaraj"],
+    "answer": "Indira Gandhi"
+  },
+  {
+    "id": "h002",
+    "question": "What is the chemical symbol for Gold?",
+    "options": ["Ag", "Gd", "Au", "Go"],
+    "answer": "Au"
+  },
+  {
+    "id": "h003",
+    "question": "Which country hosted the first FIFA World Cup in 1930?",
+    "options": ["Brazil", "Uruguay", "Italy", "France"],
+    "answer": "Uruguay"
+  },
+  {
+    "id": "h004",
+    "question": "What is the smallest prime number?",
+    "options": ["0", "1", "2", "3"],
+    "answer": "2"
+  },
+  {
+    "id": "h005",
+    "question": "Who painted the Mona Lisa?",
+    "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+    "answer": "Leonardo da Vinci"
+  }
+]
