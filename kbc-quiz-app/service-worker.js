@@ -1,4 +1,4 @@
-const CACHE_NAME = "kbc-quiz-shell-v1";
+const CACHE_NAME = "kbc-quiz-shell-v2";
 const SHELL_FILES = [
   "./index.html",
   "./style.css",
@@ -35,8 +35,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // App shell: cache-first, falling back to network.
+  // App shell: network-first, so new deployments always show up right away.
+  // Falls back to cache only when offline.
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    fetch(event.request)
+      .then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

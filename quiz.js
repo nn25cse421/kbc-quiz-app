@@ -32,6 +32,8 @@ const screens = {
 
 const el = {
   tapStart: document.getElementById("tap-start-btn"),
+  tapPrompt: document.getElementById("tap-prompt"),
+  introContent: document.getElementById("intro-content"),
   diffCards: document.querySelectorAll(".diff-card"),
   prizeAmount: document.getElementById("prize-amount"),
   qNumber: document.getElementById("q-number"),
@@ -128,21 +130,48 @@ function thump(delay = 0, startFreq = 160, gain = 0.3) {
   osc.stop(t0 + 0.4);
 }
 
-// rising sweep — builds tension into the reveal
-function sweep(delay = 0, duration = 0.9) {
+// bright shimmering cymbal/gong swell — built from filtered noise
+function cymbalSwell(delay = 0, duration = 1.4, gain = 0.22) {
   if (!audioCtx) return;
-  const osc = audioCtx.createOscillator();
+  const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    const decay = Math.pow(1 - i / bufferSize, 1.8);
+    data[i] = (Math.random() * 2 - 1) * decay;
+  }
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buffer;
+
+  const hp = audioCtx.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 3000;
+
   const g = audioCtx.createGain();
-  osc.type = "sawtooth";
-  osc.connect(g).connect(audioCtx.destination);
-  const t0 = audioCtx.currentTime + delay;
-  osc.frequency.setValueAtTime(140, t0);
-  osc.frequency.exponentialRampToValueAtTime(900, t0 + duration);
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(0.09, t0 + duration * 0.6);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
-  osc.start(t0);
-  osc.stop(t0 + duration + 0.05);
+  g.gain.value = gain;
+
+  noise.connect(hp).connect(g).connect(audioCtx.destination);
+  noise.start(audioCtx.currentTime + delay);
+}
+
+// rich bell-like chord tone with a touch of chorus (slightly detuned layer)
+function bell(freq, delay = 0, duration = 1.2, gain = 0.13) {
+  if (!audioCtx) return;
+  [0, 4].forEach((detune, i) => {
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+    osc.detune.value = detune;
+    osc.connect(g).connect(audioCtx.destination);
+    const t0 = audioCtx.currentTime + delay;
+    const layerGain = i === 0 ? gain : gain * 0.5;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(layerGain, t0 + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.05);
+  });
 }
 
 const sound = {
@@ -151,29 +180,39 @@ const sound = {
   lockWhoosh: () => { tone(200, 0.4, "sawtooth", 0.06); tone(300, 0.4, "sawtooth", 0.04, 0.05); },
   correct: () => { tone(523, 0.15, "sine", 0.12); tone(659, 0.15, "sine", 0.12, 0.12); tone(784, 0.25, "sine", 0.14, 0.24); },
   wrong: () => {
-    // harsh descending buzzer — unmistakably "game over"
     tone(180, 0.5, "sawtooth", 0.18);
     tone(120, 0.6, "sawtooth", 0.16, 0.15);
     tone(80, 0.7, "square", 0.14, 0.3);
   },
   levelUp: () => { tone(660, 0.12, "sine", 0.1); tone(880, 0.18, "sine", 0.12, 0.1); },
   win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.35, "sine", 0.12, i * 0.14)); },
-  intro: () => {
-    // big cinematic game-show sting: timpani hits -> rising sweep -> bright resolving chord
-    thump(0, 150, 0.28);
-    thump(0.28, 150, 0.24);
-    thump(0.56, 130, 0.3);
-    sweep(0.85, 0.85);
-    // bright resolving chord as the logo lands
-    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, 0.9, "sine", 0.11, 1.7 + i * 0.03));
-    [523.25 / 2, 659.25 / 2].forEach((f, i) => tone(f, 1.1, "triangle", 0.08, 1.7 + i * 0.03));
+
+  // The big reveal: sub boom + shimmering cymbal swell + rich bell chord, all landing together
+  reveal: () => {
+    thump(0, 100, 0.35);
+    cymbalSwell(0, 1.4, 0.22);
+    [523.25, 659.25, 784.0, 1046.5].forEach((f) => bell(f, 0.05, 1.3, 0.12));
   }
 };
 
 // ===== INTRO =====
-el.tapStart.addEventListener("click", () => {
+// First tap ANYWHERE on the intro screen triggers the big reveal + sound together
+el.tapPrompt.addEventListener("click", () => {
   ensureAudio();
-  sound.intro();
+  sound.reveal();
+
+  el.tapPrompt.classList.add("fading-out");
+  el.introContent.classList.add("reveal");
+
+  // show the "Take the Hot Seat" button shortly after the reveal lands
+  setTimeout(() => {
+    el.tapStart.classList.remove("hidden");
+  }, 900);
+});
+
+el.tapStart.addEventListener("click", (e) => {
+  e.stopPropagation();
+  sound.select();
   showScreen("start");
 });
 
